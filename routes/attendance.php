@@ -10,6 +10,7 @@ Route::group(['middleware' => ['auth:soms', 'localization']], function () {
     Route::group(['middleware' => []], function () {
         Route::group(['prefix' => 'batch'], function () {
             Route::get('/list', [BatchController::class, 'batchList'])->name('batch.list');
+            Route::get('/running-batch', [BatchController::class, 'runningBatch'])->name('batch.running-batch');
             Route::get('/{id}/show', [BatchController::class, 'show'])->name('batch.show');
         });
         Route::group(['prefix' => 'schedule'], function () {

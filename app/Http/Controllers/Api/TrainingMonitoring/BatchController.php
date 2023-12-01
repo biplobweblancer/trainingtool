@@ -14,15 +14,39 @@ use App\Traits\TrainingMonitoring\UtilityTrait;
 class BatchController extends Controller
 {
     use UtilityTrait;
-    //
+
+    public function runningBatch(Request $request)
+    {
+        try {
+            $batches = BatchScheduleDetail::with('schedule.trainingBatch.Provider', 'schedule.trainingBatch.training.title')
+                ->whereHas('schedule.trainingBatch', function ($query) use ($request) {
+                    if ($request->search != '') {
+                        $query->where('batchCode', 'like', '%' . $request->search . '%');
+                    }
+                })
+                ->where('status', 2)
+                ->paginate();
+
+            return response()->json([
+                'success' => true,
+                'data' => $batches,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ]);
+        }
+    }
     public function index(Request $request)
     {
         try {
             $batches = TrainingBatch::all();
+
             return response()->json([
                 'success' => true,
                 'error' => false,
-                'data' => $batches,
+                'data' => $batches
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -61,11 +85,13 @@ class BatchController extends Controller
         ]);
     }
 
+    // all batches for provider
     public function batchList(Request $request)
     {
         try {
             $user = auth()->user();
-            $provider = Provider::first();
+            $userType = $this->authUser($user->email);
+            $provider = Provider::find($userType->provider_id);
             if ($provider == null) {
                 return response()->json([
                     'success' => false,
@@ -76,7 +102,7 @@ class BatchController extends Controller
                 ->whereNotNull('startDate')
                 ->where('provider_id', $provider->id)
                 ->whereHas('providerTrainers')
-                ->paginate(15);
+                ->paginate(20);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -118,6 +144,7 @@ class BatchController extends Controller
         }
     }
 
+    // specific batch for a specific provider
     public function show($id)
     {
         try {

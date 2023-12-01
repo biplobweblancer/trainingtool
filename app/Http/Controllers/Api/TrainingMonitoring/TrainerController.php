@@ -21,15 +21,16 @@ class TrainerController extends Controller
             $user = auth()->user();
             $userType = $this->authUser($user->email);
 
-            $trainers = UserType::with('profile', 'role')->where('provider_id', $userType->provider_id)->whereHas('role', function ($query) {
+            $trainers = UserType::with('profile', 'profile.trainerProfile', 'role')->where('provider_id', $userType->provider_id)->whereHas('role', function ($query) {
                 $query->where('name', '=', 'trainer')
                     ->orWhere('name', '=', 'Trainer');
-            })->get();
+            })->whereHas('profile.trainerProfile')->get();
+
 
             return response()->json([
                 'success' => true,
                 'error' => false,
-                'data' => $trainers
+                'data' => $trainers,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -38,8 +39,6 @@ class TrainerController extends Controller
             ]);
         }
     }
-
-    // trainer store
 
     public function store(TrainerBatchesRequest $request)
     {
@@ -78,7 +77,7 @@ class TrainerController extends Controller
             return response()->json([
                 'success' => true,
                 'error' => false,
-                'message' =>  __('trainer.trainer_link_batch_success'),
+                'message' => __('trainer.trainer_link_batch_success'),
             ]);
         } catch (\Exception $e) {
             return response()->json([

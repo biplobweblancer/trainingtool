@@ -19,6 +19,8 @@ class ClassStartRequest extends FormRequest
     {
         return [
             'schedule_detail_id' => 'required|exists:tms_batch_schedule_details,id',
+            'streaming_link' => 'nullable',
+            'static_link' => 'nullable',
         ];
     }
 

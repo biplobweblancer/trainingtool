@@ -21,6 +21,7 @@ class AttendanceController extends Controller
         try {
             $user = auth()->user();
             $userType = $this->authUser($user->email);
+
             $trainer = ProvidersTrainer::where('ProfileId', $userType->ProfileId)->first();
             if ($trainer == null) {
                 return response()->json([
@@ -49,7 +50,7 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function start(ClassStartRequest  $request)
+    public function start(ClassStartRequest $request)
     {
         $validated_data = $request->validated();
 
@@ -85,6 +86,8 @@ class AttendanceController extends Controller
 
         $schedule_detail->update([
             'start_time' => Carbon::now()->format('H:i:s'),
+            'streaming_link' => $request->streaming_link,
+            'static_link' => $request->static_link,
             'status' => 2,
         ]);
 
@@ -94,7 +97,7 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function end(ClassStartRequest  $request)
+    public function end(ClassStartRequest $request)
     {
         $validated_data = $request->validated();
 
@@ -167,10 +170,10 @@ class AttendanceController extends Controller
                     'message' => 'You can not update the attendance of this day',
                 ]);
             }
-            $attendances =  ClassAttendance::where('batch_schedule_detail_id', $validated_data['batch_schedule_detail_id'])
+            $attendances = ClassAttendance::where('batch_schedule_detail_id', $validated_data['batch_schedule_detail_id'])
                 ->get();
 
-            foreach ($attendances as  $attendance) {
+            foreach ($attendances as $attendance) {
                 if (in_array($attendance->ProfileId, $validated_data['trainees'])) {
                     $attendance->is_present = 1;
                 } else {
@@ -192,21 +195,12 @@ class AttendanceController extends Controller
         ]);
     }
 
-    // public function all batches for office
-    public function allBatches(Request $request)
+    public function showAttendance($schedule_detail_id)
     {
         try {
-            $search_batch = $request['batch'] ?? '';
-            // dd($request['page']);
-            if ($search_batch !== '') {
-                $batches = TrainingBatch::with(['getTraining.title', 'schedule'])
-                    ->where('batchCode', 'LIKE', '%' . $search_batch . '%')
-                    ->paginate(20);
-                // dd($batches);
-            } else {
-                $batches = TrainingBatch::with('getTraining.title', 'schedule')
-                    ->paginate(20);
-            }
+            $trainees = ClassAttendance::with('profile', 'scheduleDetail')
+                ->where('batch_schedule_detail_id', $schedule_detail_id)
+                ->get();
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -217,7 +211,8 @@ class AttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $batches,
+            'data' => $trainees,
         ]);
     }
 }
+

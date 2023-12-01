@@ -57,6 +57,6 @@ class UpdatePermissionRequest extends FormRequest
             'success' => false,
             'error' => true,
             'message' => $validator->messages(),
-        ],));
+        ], ));
     }
 }
