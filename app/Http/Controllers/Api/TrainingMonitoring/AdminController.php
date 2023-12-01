@@ -24,7 +24,7 @@ class AdminController extends Controller
     private $userRepository;
     public function __construct(AdminRepositoryInterface $adminRepository, UserRepositoryInterface $userRepository)
     {
-        
+
         $this->adminRepository = $adminRepository;
         $this->userRepository = $userRepository;
     }
@@ -44,7 +44,7 @@ class AdminController extends Controller
                 'error' => false,
                 'data' => $users,
             ]);
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
