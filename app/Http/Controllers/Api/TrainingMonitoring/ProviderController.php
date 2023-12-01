@@ -13,14 +13,14 @@ use Exception;
 
 class ProviderController extends Controller
 {
-   
+
     /*
      * Handle Bridge Between Database and Business layer
      */
     private $providerRepository;
     public function __construct(ProviderRepositoryInterface $providerRepository)
     {
-        
+
         $this->providerRepository = $providerRepository;
     }
 
@@ -45,7 +45,7 @@ class ProviderController extends Controller
         }
 
     }
-    
+
     /**
      * Handle Course Provider details
      * 
@@ -68,7 +68,7 @@ class ProviderController extends Controller
             ]);
         }
     }
-     /**
+    /**
      * Handle Course Provider Edit request
      *
      * @param Provider $provider
@@ -78,7 +78,7 @@ class ProviderController extends Controller
     public function edit(Provider $tmsProvider)
     {
         try {
-            $provider = $this->providerRepository->find($tmsProvider->id);            
+            $provider = $this->providerRepository->find($tmsProvider->id);
             return response()->json([
                 'success' => true,
                 'data' => $provider,
@@ -125,7 +125,7 @@ class ProviderController extends Controller
      */
     public function update(Provider $tmsProvider, UpdateProviderRequest $request)
     {
-        try {            
+        try {
             $data = $request->all();
             $this->providerRepository->update($tmsProvider, $data);
             return response()->json([
@@ -166,7 +166,7 @@ class ProviderController extends Controller
     }
 
     public function providerBatches()
-    {     
+    {
 
         try {
             $providers = $this->providerRepository->info();
@@ -174,7 +174,7 @@ class ProviderController extends Controller
                 'success' => true,
                 'data' => $providers,
             ]);
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),

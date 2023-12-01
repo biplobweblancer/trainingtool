@@ -113,7 +113,7 @@ class DashboardController extends Controller
                     'totalPresentToday' => $todaysTotalPresent,
                 ],
             ]);
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
 
             return response()->json([
                 'success' => false,
