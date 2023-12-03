@@ -182,11 +182,11 @@ class DashboardController extends Controller
 
 
         $items = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
+ return response()->json([
+                'success' => true,
+                'data' => $items,
+            ]);
+        return response()->json(['items' => $items]);
     }
 
     public function getAllProviders(Request $request)
@@ -204,11 +204,7 @@ class DashboardController extends Controller
 
         $items = $query->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
-
+        return response()->json(['items' => $items]);
     }
 
 
@@ -224,11 +220,7 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
+        return response()->json(['items' => $items]);
     }
     public function getAllupazilas(Request $request)
     {
@@ -242,11 +234,7 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
+        return response()->json(['items' => $items]);
 
     }
     public function getAllpartners(Request $request)
@@ -261,11 +249,7 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
+        return response()->json(['items' => $items]);
     }
     public function getAlltrainers(Request $request)
     {
@@ -291,7 +275,7 @@ class DashboardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $items
+                'items' => $items
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -315,10 +299,8 @@ class DashboardController extends Controller
             }
 
             $items = $query->paginate($perPage);
-            return response()->json([
-                'success' => true,
-                'data' => $items,
-            ]);
+
+            return response()->json(['items' => $items]);
         } catch (\Exception $e) {
             // Log the exception or handle it as needed
             return response()->json(['error' => 'An error occurred.']);
@@ -330,11 +312,9 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $userType = $this->authUser($user->email);
-
         $data = [];
         try {
             if (strtolower($userType->role->name) == "superadmin") {
-                $data['total_batch'] = TrainingBatch::count();
                 $data['running_batch'] = TrainingBatchSchedule::whereHas('isStatus1')
                     ->whereHas('isStatus2')
                     ->count();
@@ -385,82 +365,37 @@ class DashboardController extends Controller
                 $data['total_allownce_remaining'] = 0;
                 $data['total_freelancer'] = 0;
 
-                $data['total_upazila'] = TrainingBatch::selectRaw('COUNT(DISTINCT(RIGHT(GEOCode, 2))) as total_upazila')->first()->total_upazila ?? 0;
-
-                $data['total_division'] = TrainingBatch::selectRaw('COUNT(DISTINCT(LEFT(GEOCode, 2))) as total_division')->first()->total_division ?? 0;
-
-                $data['total_district'] = TrainingBatch::selectRaw('COUNT(DISTINCT(SUBSTRING(GEOCode, 4,2))) AS total_district')->first()->total_district ?? 0;
-
-
-            } elseif (strtolower($userType->role->name) == "admin") {
+            } elseif (strtolower($userType->role->name) == "Admin") {
                 // division 
 
 
-            } elseif (strtolower($userType->role->name) == "dpd") {
 
 
-            } elseif (strtolower($userType->role->name) == "dc") {
+            } elseif (strtolower($userType->role->name) == "DPD") {
+
+
+
+            } elseif (strtolower($userType->role->name) == "DC") {
                 ///
 
-            } elseif (strtolower($userType->role->name) == "uno") {
+            } elseif (strtolower($userType->role->name) == "UNO") {
 
-            } elseif (strtolower($userType->role->name) == "piuofficer") {
+            } elseif (strtolower($userType->role->name) == "PIUOfficer") {
 
-            } elseif (strtolower($userType->role->name) == "member") {
+            } elseif (strtolower($userType->role->name) == "Member") {
 
-            } elseif (strtolower($userType->role->name) == "trainee") {
+            } elseif (strtolower($userType->role->name) == "Trainee") {
 
-            } elseif (strtolower($userType->role->name) == "trainer") {
+            } elseif (strtolower($userType->role->name) == "Trainer") {
 
 
             } elseif (strtolower($userType->role->name) == "Inspector") {
 
 
-            } elseif (strtolower($userType->role->name) == "provider") {
-                // A)Total batch b) Running batch c) Total Course coordinator d) Total Trainer e) Total trainee f) Course material g) Successful Freelancer h) Present trainee today 
-                $provider_id = $userType->provider_id;
+            } elseif (strtolower($userType->role->name) == "Provider") {
 
-                $data['total_batch'] = TrainingBatch::where('provider_id', $provider_id)->count();
 
-                $data['running_batch'] = TrainingBatchSchedule::whereHas('isStatus1')
-                    ->whereHas('isStatus2')
-                    ->whereHas('trainingBatch', function ($query) use ($provider_id) {
-                        $query->where('provider_id', $provider_id);
-                    })
-                    ->count();
-
-                $data['total_coordinator'] = 0;
-                $data['total_trainer'] = ProvidersTrainer::where('provider_id', $provider_id)
-                    ->selectRaw('COUNT(DISTINCT(ProfileId)) as total_trainer')
-                    ->first()->total_trainer ?? 0;
-
-                $data['total_trainee'] = TrainingApplicant::where('isTrainee', 1)
-                    ->whereHas('trainingBatch', function ($query) use ($provider_id) {
-                        $query->where('provider_id', $provider_id);
-                    })
-                    ->count();
-
-                $data['course_material'] = 0;
-                $data['total_freelancer'] = 0;
-
-                $data['total_attend_today'] = ClassAttendance::where('is_present', 1)
-                    ->whereHas('scheduleDetail', function ($query) {
-                        $query->where('date', Carbon::now()->format('Y-m-d'));
-                    })
-                    ->whereHas('scheduleDetail.schedule.trainingBatch', function ($query) use ($provider_id) {
-                        $query->where('provider_id', $provider_id);
-                    })
-                    ->count();
-                $data['total_absent_today'] = ClassAttendance::where('is_present', '0')
-                    ->whereHas('scheduleDetail', function ($query) {
-                        $query->where('date', Carbon::now()->format('Y-m-d'));
-                    })
-                    ->whereHas('scheduleDetail.schedule.trainingBatch', function ($query) use ($provider_id) {
-                        $query->where('provider_id', $provider_id);
-                    })
-                    ->count();
-
-            } elseif (strtolower($userType->role->name) == "coordinator") {
+            } elseif (strtolower($userType->role->name) == "Coordinator") {
 
 
             } else {
@@ -468,10 +403,7 @@ class DashboardController extends Controller
             }
 
 
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
+            return response()->json(['items' => $data]);
         } catch (\Exception $e) {
             // Handle the exception, log it, or return an error response
             return response()->json(['error' => 'An error occurred while processing the request.']);
