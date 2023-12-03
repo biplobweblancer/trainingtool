@@ -304,10 +304,6 @@ Route::group(['middleware' => 'auth:soms', 'prefix' => 'coordinators'], function
 Route::group(['middleware' => 'auth:soms', 'prefix' => 'provider'], function () {
     Route::get('/all-trainers', [ProviderController::class, 'allTrainer'])->name('provider.all-trainer');
 });
-Route::group(['middleware' => 'auth:soms', 'prefix' => 'check'], function () {
-    Route::get('/list/{model}/{id?}/{delete?}', [CheckDbController::class, 'list'])->name('checkdb');
-});
-
 
 Route::group(['middleware' => 'auth:soms'], function () {
     Route::get('/check-db', [CheckDbController::class, 'checkDb']);
