@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Profile extends Model
 {
     use HasFactory;
-
+    protected $connection = 'mysql-soms';
     protected $table = "profiles";
     protected $guarded = [];
 
