@@ -43,7 +43,7 @@ class InspectionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'items' => $inspections
+                'data' => $inspections
             ]);
         } catch (\Exception $e) {
             return response()->json([

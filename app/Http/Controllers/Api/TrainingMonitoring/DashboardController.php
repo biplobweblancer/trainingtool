@@ -183,7 +183,10 @@ class DashboardController extends Controller
 
         $items = $query->paginate($perPage);
 
-        return response()->json(['items' => $items]);
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
     }
 
     public function getAllProviders(Request $request)
@@ -201,7 +204,11 @@ class DashboardController extends Controller
 
         $items = $query->paginate($perPage);
 
-        return response()->json(['items' => $items]);
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
+
     }
 
 
@@ -217,7 +224,11 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-        return response()->json(['items' => $items]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
     }
     public function getAllupazilas(Request $request)
     {
@@ -231,7 +242,11 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-        return response()->json(['items' => $items]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
 
     }
     public function getAllpartners(Request $request)
@@ -246,7 +261,11 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-        return response()->json(['items' => $items]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
     }
     public function getAlltrainers(Request $request)
     {
@@ -272,7 +291,7 @@ class DashboardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'items' => $items
+                'data' => $items
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -296,8 +315,10 @@ class DashboardController extends Controller
             }
 
             $items = $query->paginate($perPage);
-
-            return response()->json(['items' => $items]);
+            return response()->json([
+                'success' => true,
+                'data' => $items,
+            ]);
         } catch (\Exception $e) {
             // Log the exception or handle it as needed
             return response()->json(['error' => 'An error occurred.']);
@@ -400,7 +421,10 @@ class DashboardController extends Controller
             }
 
 
-            return response()->json(['items' => $data]);
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
         } catch (\Exception $e) {
             // Handle the exception, log it, or return an error response
             return response()->json(['error' => 'An error occurred while processing the request.']);
