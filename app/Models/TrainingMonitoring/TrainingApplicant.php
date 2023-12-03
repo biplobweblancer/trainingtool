@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TrainingApplicant extends Model
 {
     use HasFactory;
-protected $connection = 'mysql-soms';
+    protected $connection = 'mysql-soms';
     protected $table = "training_applicants";
     protected $guarded = [];
 
@@ -20,7 +20,7 @@ protected $connection = 'mysql-soms';
 
     public function trainingBatch()
     {
-        return $this->hasOne(TrainingBatch::class, 'id', 'BatchId');
+        return $this->belongsTo(TrainingBatch::class, 'BatchId');
     }
 
     public function trainingTitle()
