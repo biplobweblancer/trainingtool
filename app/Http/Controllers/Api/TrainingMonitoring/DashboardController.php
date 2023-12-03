@@ -362,37 +362,37 @@ class DashboardController extends Controller
                 $data['total_allownce_remaining'] = 0;
                 $data['total_freelancer'] = 0;
 
-            } elseif (strtolower($userType->role->name) == "Admin") {
+            } elseif (strtolower($userType->role->name) == "admin") {
                 // division 
 
 
 
 
-            } elseif (strtolower($userType->role->name) == "DPD") {
+            } elseif (strtolower($userType->role->name) == "dpd") {
 
 
 
-            } elseif (strtolower($userType->role->name) == "DC") {
+            } elseif (strtolower($userType->role->name) == "dc") {
                 ///
 
-            } elseif (strtolower($userType->role->name) == "UNO") {
+            } elseif (strtolower($userType->role->name) == "uno") {
 
-            } elseif (strtolower($userType->role->name) == "PIUOfficer") {
+            } elseif (strtolower($userType->role->name) == "piuofficer") {
 
-            } elseif (strtolower($userType->role->name) == "Member") {
+            } elseif (strtolower($userType->role->name) == "member") {
 
-            } elseif (strtolower($userType->role->name) == "Trainee") {
+            } elseif (strtolower($userType->role->name) == "trainee") {
 
-            } elseif (strtolower($userType->role->name) == "Trainer") {
+            } elseif (strtolower($userType->role->name) == "trainer") {
 
 
             } elseif (strtolower($userType->role->name) == "Inspector") {
 
 
-            } elseif (strtolower($userType->role->name) == "Provider") {
+            } elseif (strtolower($userType->role->name) == "provider") {
 
 
-            } elseif (strtolower($userType->role->name) == "Coordinator") {
+            } elseif (strtolower($userType->role->name) == "coordinator") {
 
 
             } else {
