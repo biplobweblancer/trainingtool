@@ -39,13 +39,13 @@ class ScheduleController extends Controller
                     'message' => 'Batch information not found',
                 ]);
             }
-            if (((int)$batch->duration) <= 0) {
+            if (((int) $batch->duration) <= 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Batch duration must be greater than zero',
                 ]);
             }
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -64,12 +64,12 @@ class ScheduleController extends Controller
             $class_date = Carbon::createFromFormat('Y-m-d H:i:s', $batch->startDate);
             $start_time = Carbon::createFromFormat('H:i', $validated_data['class_time']);
             $end_time = (clone $start_time)->addHours($schedule->class_duration);
-            $total_class =  (int) $batch->duration;
+            $total_class = (int) $batch->duration;
             $class_days = explode(',', $data['class_days']);
             $class_days = array_map(function ($item) {
                 return strtolower($item);
             }, $class_days);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             TrainingBatchSchedule::where('training_batch_id', $validated_data['training_batch_id'])->delete();
             return response()->json([
                 'success' => false,
@@ -79,7 +79,7 @@ class ScheduleController extends Controller
         }
 
         try {
-            $schedule_details  = [];
+            $schedule_details = [];
             for ($i = 0; $i < $total_class; $i++) {
                 while (1) {
                     if (in_array(strtolower($class_date->format('l')), $class_days)) {
@@ -100,7 +100,7 @@ class ScheduleController extends Controller
                 }
             }
             BatchScheduleDetail::insert($schedule_details);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             BatchScheduleDetail::where('batch_schedule_id', $schedule->id)->delete();
             TrainingBatchSchedule::where('training_batch_id', $validated_data['training_batch_id'])->delete();
             return response()->json([

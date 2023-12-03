@@ -31,7 +31,7 @@ class BatchController extends Controller
                 'success' => true,
                 'data' => $batches,
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage(),
@@ -71,7 +71,7 @@ class BatchController extends Controller
                 $batches = TrainingBatch::with('getTraining.title', 'schedule')
                     ->paginate(20);
             }
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -103,7 +103,7 @@ class BatchController extends Controller
                 ->where('provider_id', $provider->id)
                 ->whereHas('providerTrainers')
                 ->paginate(20);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -135,7 +135,7 @@ class BatchController extends Controller
                     'message' => "User Not a Provider",
                 ]);
             }
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -163,7 +163,7 @@ class BatchController extends Controller
                 ->whereHas('providerTrainers')
                 ->where('id', $id)
                 ->first();
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,

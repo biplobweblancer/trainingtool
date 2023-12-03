@@ -37,7 +37,7 @@ class AttendanceController extends Controller
                 })
                 ->whereHas('schedule')
                 ->get();
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -77,7 +77,7 @@ class AttendanceController extends Controller
             }
 
             ClassAttendance::insert($trainees);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'message' => $th->getMessage(),
@@ -128,7 +128,7 @@ class AttendanceController extends Controller
         try {
             $schedules = BatchScheduleDetail::where('batch_schedule_id', $id)
                 ->get();
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -146,7 +146,7 @@ class AttendanceController extends Controller
         try {
             $trainees = ClassAttendance::with('profile', 'scheduleDetail')->where('batch_schedule_detail_id', $id)
                 ->get();
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -181,7 +181,7 @@ class AttendanceController extends Controller
                 }
                 $attendance->save();
             }
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,
@@ -201,7 +201,7 @@ class AttendanceController extends Controller
             $trainees = ClassAttendance::with('profile', 'scheduleDetail')
                 ->where('batch_schedule_detail_id', $schedule_detail_id)
                 ->get();
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response()->json([
                 'success' => false,
                 'error' => true,

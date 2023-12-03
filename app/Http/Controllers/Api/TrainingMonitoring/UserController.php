@@ -23,7 +23,7 @@ class UserController extends Controller
         UserDetailRepository $userDetailRepository,
         PreliminarySelectionRepository $preliminarySelectionRepository
     ) {
-        
+
         $this->userRepository = $userRepository;
         $this->userDetailRepository = $userDetailRepository;
         $this->preliminarySelectionRepository = $preliminarySelectionRepository;
@@ -120,13 +120,13 @@ class UserController extends Controller
     public function show($userId)
     {
         try {
-            
+
             return response([
                 'success' => true,
                 'error' => false,
                 'data' => $userId
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return response([
                 'success' => false,
                 'error' => true,
