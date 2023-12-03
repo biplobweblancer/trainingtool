@@ -6,13 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TrainingMonitoring\StoreProviderRequest;
 use App\Http\Requests\TrainingMonitoring\UpdateProviderRequest;
 use App\Models\TrainingMonitoring\Provider;
+use App\Models\TrainingMonitoring\ProvidersTrainer;
 use App\Repositories\TrainingMonitoring\Interfaces\ProviderRepositoryInterface;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Exception;
+use App\Traits\UtilityTrait;
 
 class ProviderController extends Controller
 {
+    use UtilityTrait;
 
     /*
      * Handle Bridge Between Database and Business layer
@@ -20,7 +23,6 @@ class ProviderController extends Controller
     private $providerRepository;
     public function __construct(ProviderRepositoryInterface $providerRepository)
     {
-
         $this->providerRepository = $providerRepository;
     }
 
@@ -142,6 +144,24 @@ class ProviderController extends Controller
         }
     }
 
+
+    public function providerBatches()
+    {
+
+        try {
+            $providers = $this->providerRepository->info();
+            return response()->json([
+                'success' => true,
+                'data' => $providers,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     /**
      * Delete Provider data
      *
@@ -165,14 +185,13 @@ class ProviderController extends Controller
         }
     }
 
-    public function providerBatches()
+    public function allTrainer(Request $request)
     {
-
         try {
-            $providers = $this->providerRepository->info();
+            $trainers = ProvidersTrainer::with('profile', 'trainingBatch', 'provider')->paginate();
             return response()->json([
                 'success' => true,
-                'data' => $providers,
+                'data' => $trainers,
             ]);
         } catch (\Exception $e) {
             return response()->json([

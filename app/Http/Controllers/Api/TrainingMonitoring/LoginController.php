@@ -47,18 +47,18 @@ class LoginController extends Controller
         }
 
         $profileEmail = $requestData['email'];
-        
-        $userType = UserType::with('profile','role')
-                    ->whereHas('profile', function ($query) use ($profileEmail) {
-                        $query->where('Email',$profileEmail);
-                    })->first();
+
+        $userType = UserType::with('profile', 'role')
+            ->whereHas('profile', function ($query) use ($profileEmail) {
+                $query->where('Email', $profileEmail);
+            })->first();
         $role = Role::with('permissions')->where('id', '=', $userType->role_id)->first();
         $accessPermissions = $role->permissions;
 
         $isExists = Userlog::where("user_id", $user->id)->where("status", 1)->first();
 
         if (!is_null($isExists)) {
-            
+
         } else {
             $userLog = new Userlog();
             $userLog->user_id = $user->id;
@@ -73,7 +73,7 @@ class LoginController extends Controller
 
         return $this->authenticated($accessToken, $user, $userType, $accessPermissions);
 
-        
+
 
     }
 
@@ -93,7 +93,7 @@ class LoginController extends Controller
             'access_token' => $token,
             'token_type' => 'Bearer',
             //'expires_in' => auth()->factory()->getTTL() * 60,
-            'expires_in' => Carbon::now()->addMinutes(260),
+            'expires_in' => Carbon::now()->addweek()->timestamp,
             'user' => $user_info,
             'userType' => $userType,
             'accessPermissions' => $accessPermissions,
@@ -109,7 +109,7 @@ class LoginController extends Controller
     {
 
         try {
-            $userType = UserType::where('ProfileId','=', $profileId)->first();
+            $userType = UserType::where('ProfileId', '=', $profileId)->first();
             $roleId = $userType->role_id;
             $accessPermissions = Role::with('permissions')->where('id', '=', $roleId)->first();
             return response()->json([
@@ -158,5 +158,31 @@ class LoginController extends Controller
             ], 401);
         }
     }
+
+    protected function responsWithToken($token)
+    {
+        return response()->json([
+            'success' => true,
+            'error' => false,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => Carbon::now()->addweek()->timestamp
+        ]);
+    }
+    // refresh token method
+    public function refreshToken()
+    {
+        try {
+
+            return $this->responsWithToken(auth()->refresh());
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not Authenticated',
+            ]);
+        }
+    }
+
 
 }

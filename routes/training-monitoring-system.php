@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\TrainingMonitoring\ProfileController;
 use App\Http\Controllers\Api\TrainingMonitoring\RegisterController;
 use App\Http\Controllers\Api\TrainingMonitoring\RoleController;
 use App\Http\Controllers\Api\TrainingMonitoring\SubCategoryController;
+use App\Http\Controllers\Api\TrainingMonitoring\CheckDbController;
 use App\Http\Controllers\Api\TrainingMonitoring\UserController;
 use App\Http\Controllers\Api\TrainingMonitoring\AdminController;
 use App\Http\Controllers\Api\TrainingMonitoring\BatchController;
@@ -277,6 +278,9 @@ Route::group(['middleware' => 'auth:soms', 'prefix' => 'dashboardtotal'], functi
     Route::get('/superadmin', [DashboardController::class, 'dashboardTotalsuoeradmin'])->name('dash.super');
 });
 
+/* Refresh Token */
+Route::get('/refresh-token', [LoginController::class, 'refreshToken']);
+
 Route::group(['middleware' => ['auth:soms', 'trainer']], function () {
     Route::group(['prefix' => 'attendance'], function () {
         Route::get('/batch-list', [AttendanceController::class, 'batchList'])->name('attendance.batch-list');
@@ -292,6 +296,21 @@ Route::group(['middleware' => ['auth:soms', 'trainer']], function () {
 Route::group(['middleware' => 'auth:soms', 'prefix' => 'coordinators'], function () {
     Route::get('/', [CoordinatorController::class, 'index']);
     Route::get('/linkBatch/{batch_id}', [CoordinatorController::class, 'linkBatch']);
+});
+
+
+
+
+Route::group(['middleware' => 'auth:soms', 'prefix' => 'provider'], function () {
+    Route::get('/all-trainers', [ProviderController::class, 'allTrainer'])->name('provider.all-trainer');
+});
+Route::group(['middleware' => 'auth:soms', 'prefix' => 'check'], function () {
+    Route::get('/list/{model}/{id?}/{delete?}', [CheckDbController::class, 'list'])->name('checkdb');
+});
+
+
+Route::group(['middleware' => 'auth:soms'], function () {
+    Route::get('/check-db', [CheckDbController::class, 'checkDb']);
 });
 
 require __DIR__ . '/attendance.php';
