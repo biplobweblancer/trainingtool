@@ -10,8 +10,8 @@ use App\Models\TrainingMonitoring\ProvidersTrainer;
 use App\Repositories\TrainingMonitoring\Interfaces\ProviderRepositoryInterface;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Traits\TrainingMonitoring\UtilityTrait;
 use Exception;
-use App\Traits\UtilityTrait;
 
 class ProviderController extends Controller
 {
