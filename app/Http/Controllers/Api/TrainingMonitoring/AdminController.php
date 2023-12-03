@@ -169,7 +169,7 @@ class AdminController extends Controller
                 'success' => true,
                 'message' => 'Admin User Added Successfully',
             ]);
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -272,7 +272,7 @@ class AdminController extends Controller
                 'success' => true,
                 'message' => 'Admin User Deleted Successfully',
             ]);
-        } catch (JWTException $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
