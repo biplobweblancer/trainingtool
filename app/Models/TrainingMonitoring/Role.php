@@ -11,9 +11,9 @@ class Role extends Model
     protected $connection = 'mysql-soms';
 
     protected $table = "tms_roles";
-  
+
     /**
-     * Write code on Method
+     * Write  code on Method
      *
      * @return response()
      */
@@ -31,5 +31,5 @@ class Role extends Model
         return $this->hasMany(UserType::class);
     }
 
-  
+
 }

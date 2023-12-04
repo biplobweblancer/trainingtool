@@ -5,10 +5,11 @@ namespace App\Models\TrainingMonitoring;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class ClassAttendance extends Model
 {
     use HasFactory;
-protected $connection = 'mysql-soms';
+    protected $connection = 'mysql-soms';
 
     protected $table = "tms_class_attendances";
     protected $guarded = [];

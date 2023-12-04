@@ -65,6 +65,8 @@ class AttendanceController extends Controller
             ]);
         }
 
+
+
         try {
             $trainees = [];
             foreach ($schedule_detail->schedule->trainingBatch->trainees as $trainee) {

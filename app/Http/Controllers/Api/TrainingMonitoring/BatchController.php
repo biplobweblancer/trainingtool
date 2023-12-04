@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\TrainingMonitoring;
 
 use App\Http\Controllers\Controller;
+use App\Models\TrainingMonitoring\BatchScheduleDetail;
 use App\Models\TrainingMonitoring\DevelopmentPartner;
 use App\Models\TrainingMonitoring\Provider;
 use App\Models\TrainingMonitoring\TrainingBatch;

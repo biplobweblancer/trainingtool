@@ -9,9 +9,10 @@ class DistrictRepository implements DistrictRepositoryInterface
 {
     public function all($division_code = null)
     {
+
         if ($division_code) {
             $districts = District::with('division')
-                ->whereHas('division', function ($query,$division_code) {
+                ->whereHas('division', function ($query, $division_code) {
                     $query->where('Code', $division_code);
                 })
                 ->get();

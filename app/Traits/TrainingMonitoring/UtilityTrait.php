@@ -6,6 +6,7 @@ use App\Models\TrainingMonitoring\FinalSelection;
 use App\Models\TrainingMonitoring\PrelimarySelection;
 use App\Models\TrainingMonitoring\UserType;
 
+
 trait UtilityTrait
 {
     public function selectionStatusAdd($users)
@@ -81,11 +82,13 @@ trait UtilityTrait
 
     public function getTestExample($string)
     {
-        return strtolower(preg_replace(
-            ['/[^\w\s]+/', '/\s+/'],
-            ['', '-'],
-            $string
-        ));
+        return strtolower(
+            preg_replace(
+                ['/[^\w\s]+/', '/\s+/'],
+                ['', '-'],
+                $string
+            )
+        );
     }
 
     public function getDay($date)
@@ -210,11 +213,12 @@ trait UtilityTrait
         return $classDuration;
     }
 
-    public function authUser($email){
-       return $userType = UserType::with('profile','role')
-                    ->whereHas('profile', function ($query) use ($email) {
-                        $query->where('Email',$email);
-                    })->first();
-        
+    public function authUser($email)
+    {
+        return $userType = UserType::with('profile', 'role')
+            ->whereHas('profile', function ($query) use ($email) {
+                $query->where('Email', $email);
+            })->first();
+
     }
 }

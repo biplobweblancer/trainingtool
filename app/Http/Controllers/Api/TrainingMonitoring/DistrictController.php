@@ -21,7 +21,6 @@ class DistrictController extends Controller
     private $divisionRepository;
     public function __construct(DistrictRepositoryInterface $districtRepository, DivisionRepositoryInterface $divisionRepository)
     {
-        
         $this->districtRepository = $districtRepository;
         $this->divisionRepository = $divisionRepository;
     }
@@ -33,6 +32,7 @@ class DistrictController extends Controller
      */
     public function index($division_code = null)
     {
+
         try {
             if ($division_code) {
                 $district = $this->districtRepository->all($division_code);

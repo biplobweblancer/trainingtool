@@ -18,6 +18,7 @@ use App\Models\TrainingMonitoring\TrainingApplicant;
 use App\Models\TrainingMonitoring\TrainingBatch;
 use App\Models\TrainingMonitoring\TrainingTitle;
 use App\Models\TrainingMonitoring\Upazila;
+use App\Models\TrainingMonitoring\TrainingBatchSchedule;
 use App\Models\TrainingMonitoring\User;
 use App\Models\TrainingMonitoring\UserType;
 use App\Models\TrainingMonitoring\Profile;
@@ -32,94 +33,96 @@ class DashboardController extends Controller
     public function summery()
     {
         // startDate < DATE_ADD (CURDATE(), INTERVAL duration DAY);
-        try {
-            $user = auth()->user();
-            $userType = $this->authUser($user->email);
+        // try {
+        //     $user = auth()->user();
+        //     $userType = $this->authUser($user->email);
 
 
-            $provider_id = $userType->provider_id;
+        //     $provider_id = $userType->provider_id;
 
-            $totalDisision = Division::count();
-            $totalDistrict = District::count();
-            $totalUpazila = Upazila::count();
+        //     $totalDisision = Division::count();
+        //     $totalDistrict = District::count();
+        //     $totalUpazila = Upazila::count();
 
-            if ($provider_id) {
-
-
-                $totalBatchData = TrainingBatch::where('provider_id', $provider_id)->whereNotNull('startDate')->get();
+        //     if ($provider_id) {
 
 
-                $runningBatch = TrainingBatch::where('provider_id', $provider_id)->whereNotNull('startDate')
-                    ->whereRaw('date(startDate) <=  CURDATE()')
-                    ->whereRaw('DATE_ADD(date(startDate), INTERVAL duration DAY) >=  CURDATE()')
-                    ->count();
-                $totalBatch = count($totalBatchData);
-                $totalTrainer = ProvidersTrainer::where('provider_id', $provider_id)->count();
-                $totalStudent = 0;
-                if (count($totalBatchData) > 0) {
-
-                    foreach ($totalBatchData as $trainee) {
-
-                        $student = TrainingApplicant::where('BatchId', $trainee->id)->where('IsTrainee', 1)->first();
-                        if ($student) {
-                            $totalStudent = $totalStudent + 1;
-                        }
-                    }
-                }
-            } else {
-                $totalBatch = TrainingBatch::count();
-                $runningBatch = TrainingBatch::whereNotNull('startDate')
-                    ->whereRaw('date(startDate) <=  CURDATE()')
-                    ->whereRaw('DATE_ADD(date(startDate), INTERVAL duration DAY) >=  CURDATE()')
-                    ->count();
-                $totalTrainer = TrainerProfile::count();
-                $totalStudent = TrainingApplicant::where('IsTrainee', 1)
-                    ->count();
-
-            }
-
-            $totalProvider = Provider::count();
-            $totalCourse = Training::count();
-            //$totalProdiver = Provider::count();
-
-            $totalCoordinator = 0;
+        //         $totalBatchData = TrainingBatch::where('provider_id', $provider_id)->whereNotNull('startDate')->get();
 
 
-            $totalPresentToday = BatchScheduleDetail::whereRaw('date=CURDATE()')->get();
-            $totalPresent = 0;
-            if (count($totalPresentToday) > 0) {
-                foreach ($totalPresentToday as $row) {
-                    $present = ClassAttendance::where('batch_schedule_detail_id', $row['id'])->where('is_present', 1)->get();
-                    if ($present) {
-                        $totalPresent = count($present) + $totalPresent;
-                    }
-                }
-            }
-            $todaysTotalPresent = $totalPresent;
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'totalDisision' => $totalDisision,
-                    'totalDistrict' => 44,
-                    'totalUpazila' => 130,
-                    'totalBatch' => $totalBatch,
-                    'totalStudent' => $totalStudent,
-                    'totalProvider' => $totalProvider,
-                    'totalCourse' => $totalCourse,
-                    'runningBatch' => $runningBatch,
-                    'completeBatch' => 0,
-                    'totalTrainer' => $totalTrainer,
-                    'totalCoordinator' => $totalCoordinator,
-                    'totalPresentToday' => $todaysTotalPresent,
-                ],
-            ]);
-        } catch (\Exception $e) {
+        //         $runningBatch = TrainingBatch::where('provider_id', $provider_id)->whereNotNull('startDate')
+        //             ->whereRaw('date(startDate) <=  CURDATE()')
+        //             ->whereRaw('DATE_ADD(date(startDate), INTERVAL duration DAY) >=  CURDATE()')
+        //             ->count();
+        //         $totalBatch = count($totalBatchData);
+        //         $totalTrainer = ProvidersTrainer::where('provider_id', $provider_id)->count();
+        //         $totalStudent = 0;
+        //         if (count($totalBatchData) > 0) {
 
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ]);
-        }
+        //             foreach ($totalBatchData as $trainee) {
+
+        //                 $student = TrainingApplicant::where('BatchId', $trainee->id)->where('IsTrainee', 1)->first();
+        //                 if ($student) {
+        //                     $totalStudent = $totalStudent + 1;
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         $totalBatch = TrainingBatch::count();
+        //         $runningBatch = TrainingBatch::whereNotNull('startDate')
+        //             ->whereRaw('date(startDate) <=  CURDATE()')
+        //             ->whereRaw('DATE_ADD(date(startDate), INTERVAL duration DAY) >=  CURDATE()')
+        //             ->count();
+        //         $totalTrainer = TrainerProfile::count();
+        //         $totalStudent = TrainingApplicant::where('IsTrainee', 1)
+        //             ->count();
+
+        //     }
+
+        //     $totalProvider = Provider::count();
+        //     $totalCourse = Training::count();
+        //     //$totalProdiver = Provider::count();
+
+        //     $totalCoordinator = 0;
+
+
+        //     $totalPresentToday = BatchScheduleDetail::whereRaw('date=CURDATE()')->get();
+        //     $totalPresent = 0;
+        //     if (count($totalPresentToday) > 0) {
+        //         foreach ($totalPresentToday as $row) {
+        //             $present = ClassAttendance::where('batch_schedule_detail_id', $row['id'])->where('is_present', 1)->get();
+        //             if ($present) {
+        //                 $totalPresent = count($present) + $totalPresent;
+        //             }
+        //         }
+        //     }
+        //     $todaysTotalPresent = $totalPresent;
+        //     return response()->json([
+        //         'success' => true,
+        //         'data' => [
+        //             'totalDisision' => $totalDisision,
+        //             'totalDistrict' => 44,
+        //             'totalUpazila' => 130,
+        //             'totalBatch' => $totalBatch,
+        //             'totalStudent' => $totalStudent,
+        //             'totalProvider' => $totalProvider,
+        //             'totalCourse' => $totalCourse,
+        //             'runningBatch' => $runningBatch,
+        //             'completeBatch' => 0,
+        //             'totalTrainer' => $totalTrainer,
+        //             'totalCoordinator' => $totalCoordinator,
+        //             'totalPresentToday' => $todaysTotalPresent,
+        //         ],
+        //     ]);
+        // } catch (\Exception $e) {
+
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => $e->getMessage(),
+        //     ]);
+        // }
+
+        return "remove this";
     }
 
     public function courses()
@@ -159,6 +162,8 @@ class DashboardController extends Controller
         ]);
     }
 
+
+
     public function getAllbatches(Request $request)
     {
 
@@ -166,7 +171,7 @@ class DashboardController extends Controller
         $batchStatus = $request->input('batch_status', '');
         $search = $request->input('search', '');
 
-        $query = TrainingBatch::with('trainingBatchSchedule');
+        $query = TrainingBatch::with('trainingBatchSchedule', 'getTraining', 'getTraining.trainingTitle');
 
         if ($search) {
             $query->where('batchCode', 'like', "%$search%")
@@ -183,10 +188,7 @@ class DashboardController extends Controller
 
         $items = $query->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
+        return response()->json(['data' => $items, 'success' => true]);
     }
 
     public function getAllProviders(Request $request)
@@ -204,13 +206,8 @@ class DashboardController extends Controller
 
         $items = $query->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
-
+        return response()->json(['items' => $items]);
     }
-
 
     public function getAlldistricts(Request $request)
     {
@@ -224,17 +221,14 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
+        return response()->json(['data' => $items, 'success' => true]);
     }
+
     public function getAllupazilas(Request $request)
     {
         $perPage = $request->input('per_page', 10);
         $search = $request->input('search', '');
-        $query = Upazila::query();
+        $query = Upazila::with('district');
 
         if ($search) {
             $query->where('Name', 'like', "%$search%")
@@ -242,13 +236,9 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
-
+        return response()->json(['data' => $items, 'success' => true]);
     }
+
     public function getAllpartners(Request $request)
     {
         $perPage = $request->input('per_page', 10);
@@ -261,12 +251,8 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'data' => $items,
-        ]);
     }
+
     public function getAlltrainers(Request $request)
     {
         try {
@@ -291,7 +277,7 @@ class DashboardController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $items
+                'items' => $items
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -299,8 +285,8 @@ class DashboardController extends Controller
                 'message' => 'Error processing the request: ' . $e->getMessage()
             ], 500);
         }
-
     }
+
     public function getAlltrainees(Request $request)
     {
         try {
@@ -315,16 +301,17 @@ class DashboardController extends Controller
             }
 
             $items = $query->paginate($perPage);
-            return response()->json([
-                'success' => true,
-                'data' => $items,
-            ]);
+
+            return response()->json(['items' => $items]);
         } catch (\Exception $e) {
             // Log the exception or handle it as needed
             return response()->json(['error' => 'An error occurred.']);
         }
-
     }
+
+
+
+
 
     public function dashboardTotalsuoeradmin(Request $request)
     {
@@ -338,6 +325,21 @@ class DashboardController extends Controller
                 $data['running_batch'] = TrainingBatchSchedule::whereHas('isStatus1')
                     ->whereHas('isStatus2')
                     ->count();
+
+                $data['completed_batch'] = TrainingBatchSchedule::whereHas('isStatus3')
+                    ->doesntHave('isStatus2')
+                    ->doesntHave('isStatus1')
+                    ->count();
+
+                $data['pending_class'] = BatchScheduleDetail::where('status', 1)
+                    ->count();
+                $data['running_class'] = BatchScheduleDetail::where('status', 2)
+                    ->count();
+
+                $data['complete_class'] = BatchScheduleDetail::where('status', 3)
+                    ->count();
+
+
 
                 $data['total_trainee'] = TrainingApplicant::where('isTrainee', 1)
                     ->count();
@@ -376,8 +378,8 @@ class DashboardController extends Controller
                         $query->where('date', '>=', Carbon::now()->subMonth()->format('Y-m-d'));
                     })
                     ->count();
-
-                $datap['total_dropout'] = TrainingApplicant::where('isDroppedOut', 1)
+                $data['total_trainer'] = ProvidersTrainer::count() ?? 0;
+                $data['total_dropout'] = TrainingApplicant::where('isDroppedOut', 1)
                     ->count();
 
                 $data['total_vendor'] = Provider::count();
@@ -412,6 +414,74 @@ class DashboardController extends Controller
 
             } elseif (strtolower($userType->role->name) == "trainer") {
 
+                $profile_id = $userType->ProfileId;
+
+                $data['total_batch'] = TrainingBatch::whereHas('providerTrainers', function ($query) use ($profile_id) {
+                    $query->where('ProfileId', $profile_id);
+                })->count();
+
+                $data['running_batch'] = TrainingBatchSchedule::whereHas('isStatus1')
+                    ->whereHas('isStatus2')
+                    ->whereHas('trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+                $data['completed_batch'] = TrainingBatchSchedule::whereHas('isStatus3')
+                    ->doesntHave('isStatus2')
+                    ->doesntHave('isStatus1')
+                    ->whereHas('trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+
+
+                $data['pending_class'] = BatchScheduleDetail::where('status', 1)
+                    ->whereHas('schedule.trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+                $data['running_class'] = BatchScheduleDetail::where('status', 2)
+                    ->whereHas('schedule.trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+                $data['complete_class'] = BatchScheduleDetail::where('status', 3)
+                    ->whereHas('schedule.trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+
+                $data['total_dropout'] = TrainingApplicant::where('isDroppedOut', 1)
+                    ->whereHas('trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+
+
+
+                $data['total_trainee'] = TrainingApplicant::where('isTrainee', 1)
+                    ->whereHas('trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+
+                $data['total_attend_today'] = ClassAttendance::where('is_present', 1)
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', Carbon::now()->format('Y-m-d'));
+                    })
+                    ->whereHas('scheduleDetail.schedule.trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
+
+                $data['total_absent_today'] = ClassAttendance::where('is_present', '0')
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', Carbon::now()->format('Y-m-d'));
+                    })
+                    ->whereHas('scheduleDetail.schedule.trainingBatch.providerTrainers', function ($query) use ($profile_id) {
+                        $query->where('ProfileId', $profile_id);
+                    })
+                    ->count();
 
             } elseif (strtolower($userType->role->name) == "Inspector") {
 
@@ -428,6 +498,38 @@ class DashboardController extends Controller
                         $query->where('provider_id', $provider_id);
                     })
                     ->count();
+
+                $data['completed_batch'] = TrainingBatchSchedule::whereHas('isStatus3')
+                    ->doesntHave('isStatus2')
+                    ->doesntHave('isStatus1')
+                    ->whereHas('trainingBatch', function ($query) use ($provider_id) {
+                        $query->where('provider_id', $provider_id);
+                    })
+                    ->count();
+
+                $data['pending_class'] = BatchScheduleDetail::where('status', 1)
+                    ->whereHas('schedule.trainingBatch', function ($query) use ($provider_id) {
+                        $query->where('provider_id', $provider_id);
+                    })
+                    ->count();
+                $data['running_class'] = BatchScheduleDetail::where('status', 2)
+                    ->whereHas('schedule.trainingBatch', function ($query) use ($provider_id) {
+                        $query->where('provider_id', $provider_id);
+                    })
+                    ->count();
+
+                $data['complete_class'] = BatchScheduleDetail::where('status', 3)
+                    ->whereHas('schedule.trainingBatch', function ($query) use ($provider_id) {
+                        $query->where('provider_id', $provider_id);
+                    })
+                    ->count();
+
+                $data['total_dropout'] = TrainingApplicant::where('isDroppedOut', 1)
+                    ->whereHas('trainingBatch', function ($query) use ($provider_id) {
+                        $query->where('provider_id', $provider_id);
+                    })
+                    ->count();
+
 
                 $data['total_coordinator'] = 0;
                 $data['total_trainer'] = ProvidersTrainer::where('provider_id', $provider_id)

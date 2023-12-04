@@ -12,7 +12,7 @@ interface AdminRepositoryInterface
 
     public function details($id);
 
-    public function update($user_id,$user_type_data);
+    public function update($user_id, $user_type_data);
 
     public function destroy($id);
 

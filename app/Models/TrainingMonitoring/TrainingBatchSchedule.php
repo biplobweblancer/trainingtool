@@ -35,6 +35,11 @@ class TrainingBatchSchedule extends Model
         return $this->hasOne(BatchScheduleDetail::class, 'batch_schedule_id')
             ->where('status', 2);
     }
+    public function isStatus3()
+    {
+        return $this->hasOne(BatchScheduleDetail::class, 'batch_schedule_id')
+            ->where('status', 3);
+    }
     public function isClassDay()
     {
         return false;
