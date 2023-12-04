@@ -45,15 +45,18 @@ class LoginController extends Controller
         if (!$user || !Hash::check($requestData['password'], $user->password)) {
             return response(['success' => false, 'message' => 'Invalid SOMS credentials'], 200);
         }
-
         $profileEmail = $requestData['email'];
+
+        // return $profileEmail;
 
         $userType = UserType::with('profile', 'role')
             ->whereHas('profile', function ($query) use ($profileEmail) {
                 $query->where('Email', $profileEmail);
             })->first();
+
         $role = Role::with('permissions')->where('id', '=', $userType->role_id)->first();
         $accessPermissions = $role->permissions;
+
 
         $isExists = Userlog::where("user_id", $user->id)->where("status", 1)->first();
 
@@ -70,6 +73,8 @@ class LoginController extends Controller
 
         // Create a token for the authenticated user
         $accessToken = $user->createToken('authToken')->accessToken;
+
+        //return $role;
 
         return $this->authenticated($accessToken, $user, $userType, $accessPermissions);
 
