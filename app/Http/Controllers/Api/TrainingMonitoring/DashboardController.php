@@ -251,6 +251,11 @@ class DashboardController extends Controller
                 ->orWhere('Code', 'like', "%$search%");
         }
         $items = $query->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
     }
 
     public function getAlltrainers(Request $request)
