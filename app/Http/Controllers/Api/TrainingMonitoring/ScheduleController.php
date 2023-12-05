@@ -8,17 +8,21 @@ use App\Models\TrainingMonitoring\BatchScheduleDetail;
 use App\Models\TrainingMonitoring\Provider;
 use App\Models\TrainingMonitoring\TrainingBatch;
 use App\Models\TrainingMonitoring\TrainingBatchSchedule;
+use App\Traits\TrainingMonitoring\UtilityTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
+    use UtilityTrait;
     public function store(ScheduleCreateRequest $request)
     {
+
         $validated_data = $request->all();
         try {
             $user = auth()->user();
-            $provider = Provider::first();
+            $userType = $this->authUser($user->email);
+            $provider = Provider::find($userType->provider_id);
             if ($provider == null) {
                 return response()->json([
                     'success' => false,
