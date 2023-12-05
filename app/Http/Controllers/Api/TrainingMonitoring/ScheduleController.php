@@ -33,9 +33,9 @@ class ScheduleController extends Controller
                 $batch = TrainingBatch::with('getTraining.title', 'schedule')
                     ->whereNotNull('startDate')
                     ->where('provider_id', $provider->id)
-                    ->whereHas('providerTrainers')
+                    // ->whereHas('providerTrainers')
                     ->where('id', $validated_data['training_batch_id'])
-                    ->whereHas('primaryTrainer')
+                    // ->whereHas('primaryTrainer')
                     ->first();
 
                 if ($batch == null) {
