@@ -3,8 +3,15 @@
 /public/build
 /public/hot
 /public/storage
+/app/secrets
+/database/migrations
 /storage/*.key
+/config/auth
+/config/passport
+/resources/sass
 /vendor
+/resources/views
+/app/Http/Controllers/Auth
 .env
 .env.backup
 .env.production
@@ -17,3 +24,4 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+app/Models/User.php
