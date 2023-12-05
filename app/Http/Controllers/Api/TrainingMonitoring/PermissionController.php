@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\TrainingMonitoring;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePermissionRequest;
-use App\Http\Requests\UpdatePermissionRequest;
+use App\Http\Requests\TrainingMonitoring\StorePermissionRequest;
+use App\Http\Requests\TrainingMonitoring\UpdatePermissionRequest;
 use App\Models\TrainingMonitoring\Permissions;
 use App\Models\TrainingMonitoring\Role;
 use App\Repositories\TrainingMonitoring\Interfaces\PermissionRepositoryInterface;
@@ -167,19 +167,19 @@ class PermissionController extends Controller
      * Update Permission data
      *
      * @param Permission $permission
-     * @param UpdateProviderRequest $request
+     * @param UpdatePermissionRequest $request
      *
      * @return json Response
      */
-    public function update(Provider $provider, UpdateProviderRequest $request)
+    public function update(Permission $permission, UpdatePermissionRequest $request)
     {
         try {
             $data = $request->all();
-            $this->providerRepository->update($provider, $data);
+            $this->permissionRepository->update($permission, $data);
             return response()->json([
                 'success' => true,
-                'data' => $provider->name,
-                'message' => __('provider-list.provider_updated'),
+                'data' => $permission->name,
+                'message' => __('permission is updated'),
             ]);
         } catch (\Exception $e) {
 
