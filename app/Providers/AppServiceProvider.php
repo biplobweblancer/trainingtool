@@ -41,7 +41,7 @@ use App\Repositories\TrainingMonitoring\UserRepository;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any  application services.
+     * Register any application services.
      */
     public function register(): void
     {

@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Repositories\TrainingMonitoring\Interfaces\TrainerEnrollRepositoryInterface;
 use App\Models\TrainingMonitoring\ProvidersTrainer;
 use Exception;
+use App\Traits\TrainingMonitoring\UtilityTrait;
 
 class TrainerEnrollController extends Controller
 {
     /*
      * Handle Bridge Between Database and Business layer
      */
+    use UtilityTrait;
     private $trainerEnrollRepository;
     public function __construct(TrainerEnrollRepositoryInterface $trainerEnrollRepository)
     {
@@ -21,7 +23,8 @@ class TrainerEnrollController extends Controller
     public function index()
     {
         try {
-            $trainerEnroll = $this->trainerEnrollRepository->all();
+            $trainerEnroll = $this->trainerEnrollRepository->all();                    
+
             return response()->json([
                 'success' => true,
                 'data' => $trainerEnroll,

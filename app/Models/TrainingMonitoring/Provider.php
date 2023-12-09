@@ -18,8 +18,6 @@ class Provider extends Model
         return $this->hasMany(UserType::class);
     }
 
-
-
     public function TrainingBatches()
     {
         return $this->hasMany(TrainingBatch::class);

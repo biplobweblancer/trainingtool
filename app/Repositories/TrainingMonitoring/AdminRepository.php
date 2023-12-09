@@ -14,12 +14,16 @@ class AdminRepository implements AdminRepositoryInterface
 
     public function all()
     {
-        /*return User::with('role', 'userType')->whereHas('role', function ($query) {
-            $query->where('name', '!=', 'trainee')
-                ->orWhere('name', '!=', 'Trainee');
-        })->get();*/
-        return UserType::with('role','profile','district','upazila','provider')
+        $user = auth()->user();
+        $userType = $this->authUser($user->email);
+        $provider_id = $userType->provider_id;
+        if($provider_id){
+            return UserType::with('role','profile','district','upazila','provider')->where('provider_id',$provider_id)->get();
+        }else{
+            return UserType::with('role','profile','district','upazila','provider')
                ->get();
+        }
+        
     }
 
     public function store($data)

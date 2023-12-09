@@ -127,7 +127,7 @@ class AdminController extends Controller
     ]);
     }
     }
-    } */
+    }*/
 
     public function store(Request $request)
     {

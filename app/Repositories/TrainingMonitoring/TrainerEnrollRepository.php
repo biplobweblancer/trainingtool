@@ -12,7 +12,15 @@ class TrainerEnrollRepository implements TrainerEnrollRepositoryInterface
 
     public function all()
     {
-        return ProvidersTrainer::with('profile', 'trainingBatch', 'provider')->get();
+        $user = auth()->user();
+        $userType = $this->authUser($user->email);
+        $provider_id = $userType->provider_id;
+        if($provider_id){
+            return ProvidersTrainer::with('profile', 'trainingBatch', 'provider')->where('provider_id',$provider_id)->get();
+        }else{
+            return ProvidersTrainer::with('profile', 'trainingBatch', 'provider')->get();
+        }
+        
     }
 
     public function details($id)

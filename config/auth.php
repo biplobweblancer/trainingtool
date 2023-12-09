@@ -34,14 +34,21 @@ return [
     | Supported: "session"
     |
     */
-
     'guards' => [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
-    ],
 
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
+        'soms' => [
+            'driver' => 'passport',
+            'provider' => 'soms_users',
+        ],
+    ],
     /*
     |--------------------------------------------------------------------------
     | User Providers
@@ -63,6 +70,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+        ],
+        'soms_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\SomsUser::class,
         ],
 
         // 'users' => [

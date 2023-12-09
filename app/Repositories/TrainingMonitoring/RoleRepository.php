@@ -5,12 +5,24 @@ namespace App\Repositories\TrainingMonitoring;
 use App\Models\TrainingMonitoring\Role;
 use App\Models\TrainingMonitoring\User;
 use App\Repositories\TrainingMonitoring\Interfaces\RoleRepositoryInterface;
+use App\Traits\TrainingMonitoring\UtilityTrait;
 
 class RoleRepository implements RoleRepositoryInterface
 {
+    use UtilityTrait;
     public function all()
     {
-        return Role::with('permissions','userType')->get();
+        $user = auth()->user();
+        $userType = $this->authUser($user->email);
+        $provider_id = $userType->provider_id;
+        if($provider_id){
+            return Role::with('permissions','userType')->whereHas('userType', function ($query) use ($provider_id) {
+                $query->where('provider_id',$provider_id);
+            })->get();
+        }else{
+            return Role::with('permissions','userType')->get();
+        }
+        
     }
 
 

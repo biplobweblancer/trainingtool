@@ -5,7 +5,6 @@ namespace App\Models\TrainingMonitoring;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-
 class ProvidersBatchCoordinator extends Model
 {
     use HasFactory;

@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\TrainingMonitoring\ScheduleController;
 use Illuminate\Support\Facades\Route;
 
 
-
 Route::group(['middleware' => ['auth:soms', 'localization']], function () {
     Route::group(['middleware' => []], function () {
         Route::group(['prefix' => 'batch'], function () {

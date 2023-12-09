@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BatchScheduleDetail extends Model
 {
     use HasFactory;
-    protected $connection = 'mysql-soms';
+protected $connection = 'mysql-soms';
 
     protected $table = 'tms_batch_schedule_details';
     protected $guarded = [];
@@ -45,10 +45,3 @@ class BatchScheduleDetail extends Model
         return $this->belongsTo(TrainingBatchSchedule::class, 'batch_schedule_id');
     }
 }
-
-
-/**
- * Write code on Method
- *
- * @return response()
- */
