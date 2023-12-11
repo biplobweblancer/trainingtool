@@ -18,19 +18,19 @@ class BatchController extends Controller
     public function runningBatch(Request $request)
     {
         try {
-
+            
             $user = auth()->user();
             $userType = $this->authUser($user->email);
             $roleName = $userType->role->name;
 
+            
 
-
-            $batches = TrainingBatchSchedule::with('scheduleDetails', 'trainingBatch', 'trainingBatch.Provider', 'trainingBatch.Provider.userType', 'trainingBatch.providerTrainers', 'trainingBatch.training.title')
+            $batches = TrainingBatchSchedule::with('scheduleDetails', 'trainingBatch', 'trainingBatch.Provider','trainingBatch.Provider.userType','trainingBatch.providerTrainers', 'trainingBatch.training.title')
                 ->whereHas('scheduleDetails', function ($query) {
                     $query->where('status', 2)
                         ->orWhere('status', 3);
                 })
-                ->whereHas('trainingBatch', function ($query) use ($request, $roleName, $userType) {
+                ->whereHas('trainingBatch', function ($query) use ($request,$roleName,$userType) {
                     if ($request->search != '') {
                         $query->where('batchCode', 'like', '%' . $request->search . '%');
                     }
@@ -38,15 +38,15 @@ class BatchController extends Controller
                         $provider_id = $userType->provider_id;
                         $query->where('provider_id', $provider_id);
                     }
-
+                    
                 })
-                ->whereHas('trainingBatch.Provider.userType', function ($query) use ($roleName, $userType) {
-
+                ->whereHas('trainingBatch.Provider.userType', function ($query) use ($roleName,$userType) {
+                  
                     if (strtolower($roleName) == "trainer") {
                         $profile_id = $userType->ProfileId;
                         $query->where('ProfileId', $profile_id);
                     }
-
+                    
                 })
                 ->distinct()
                 ->paginate();

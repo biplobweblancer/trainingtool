@@ -1,0 +1,413 @@
+<?php
+
+namespace App\Http\Controllers\Api\TrainingMonitoring;
+
+use Carbon\Carbon;
+
+use App\Http\Controllers\Controller;
+use App\Models\TrainingMonitoring\Batch;
+use App\Models\TrainingMonitoring\BatchScheduleDetail;
+use App\Models\TrainingMonitoring\ClassAttendance;
+use App\Models\TrainingMonitoring\District;
+use App\Models\TrainingMonitoring\Division;
+use App\Models\TrainingMonitoring\Provider;
+use App\Models\TrainingMonitoring\ProvidersTrainer;
+use App\Models\TrainingMonitoring\TrainerProfile;
+use App\Models\TrainingMonitoring\Training;
+use App\Models\TrainingMonitoring\TrainingApplicant;
+use App\Models\TrainingMonitoring\TrainingBatch;
+use App\Models\TrainingMonitoring\TrainingTitle;
+use App\Models\TrainingMonitoring\Upazila;
+use App\Models\TrainingMonitoring\User;
+use App\Models\TrainingMonitoring\UserType;
+use App\Models\TrainingMonitoring\Profile;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Traits\TrainingMonitoring\UtilityTrait;
+use Exception;
+
+class DashboardController extends Controller
+{
+    use UtilityTrait;
+    public function summery()
+    {
+        // startDate < DATE_ADD (CURDATE(), INTERVAL duration DAY);
+        try {
+            $user = auth()->user();
+            $userType = $this->authUser($user->email);
+
+
+            $provider_id = $userType->provider_id;
+
+            $totalDisision = Division::count();
+            $totalDistrict = District::count();
+            $totalUpazila = Upazila::count();
+
+            if ($provider_id) {
+
+
+                $totalBatchData = TrainingBatch::where('provider_id', $provider_id)->whereNotNull('startDate')->get();
+
+
+                $runningBatch = TrainingBatch::where('provider_id', $provider_id)->whereNotNull('startDate')
+                    ->whereRaw('date(startDate) <=  CURDATE()')
+                    ->whereRaw('DATE_ADD(date(startDate), INTERVAL duration DAY) >=  CURDATE()')
+                    ->count();
+                $totalBatch = count($totalBatchData);
+                $totalTrainer = ProvidersTrainer::where('provider_id', $provider_id)->count();
+                $totalStudent = 0;
+                if (count($totalBatchData) > 0) {
+
+                    foreach ($totalBatchData as $trainee) {
+
+                        $student = TrainingApplicant::where('BatchId', $trainee->id)->where('IsTrainee', 1)->first();
+                        if ($student) {
+                            $totalStudent = $totalStudent + 1;
+                        }
+                    }
+                }
+            } else {
+                $totalBatch = TrainingBatch::count();
+                $runningBatch = TrainingBatch::whereNotNull('startDate')
+                    ->whereRaw('date(startDate) <=  CURDATE()')
+                    ->whereRaw('DATE_ADD(date(startDate), INTERVAL duration DAY) >=  CURDATE()')
+                    ->count();
+                $totalTrainer = TrainerProfile::count();
+                $totalStudent = TrainingApplicant::where('IsTrainee', 1)
+                    ->count();
+
+            }
+
+            $totalProvider = Provider::count();
+            $totalCourse = Training::count();
+            //$totalProdiver = Provider::count();
+
+            $totalCoordinator = 0;
+
+
+            $totalPresentToday = BatchScheduleDetail::whereRaw('date=CURDATE()')->get();
+            $totalPresent = 0;
+            if (count($totalPresentToday) > 0) {
+                foreach ($totalPresentToday as $row) {
+                    $present = ClassAttendance::where('batch_schedule_detail_id', $row['id'])->where('is_present', 1)->get();
+                    if ($present) {
+                        $totalPresent = count($present) + $totalPresent;
+                    }
+                }
+            }
+            $todaysTotalPresent = $totalPresent;
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'totalDisision' => $totalDisision,
+                    'totalDistrict' => 44,
+                    'totalUpazila' => 130,
+                    'totalBatch' => $totalBatch,
+                    'totalStudent' => $totalStudent,
+                    'totalProvider' => $totalProvider,
+                    'totalCourse' => $totalCourse,
+                    'runningBatch' => $runningBatch,
+                    'completeBatch' => 0,
+                    'totalTrainer' => $totalTrainer,
+                    'totalCoordinator' => $totalCoordinator,
+                    'totalPresentToday' => $todaysTotalPresent,
+                ],
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function courses()
+    {
+        $courses = TrainingTitle::all();
+
+        return response()->json([
+            'success' => true,
+            'data' => $courses,
+        ]);
+    }
+
+    public function batches(Request $request)
+    {
+        $batches = TrainingBatch::with(['Provider', 'getTraining.title'])
+            ->whereHas('getTraining.title', function ($query) use ($request) {
+                if ($request->course_id != '') {
+                    $query->where('id', $request->course_id);
+                }
+            })
+            ->when($request->batch != '', function ($query) use ($request) {
+                $query->where('batchCode', 'like', '%' . $request->batch . '%');
+            })
+            ->whereHas('trainingApplicant.getProfile', function ($query) use ($request) {
+                if ($request->district_id != '') {
+                    $query->where('district_code', $request->district_id);
+                }
+                if ($request->division_id != '') {
+                    $query->where('division_code', $request->division_id);
+                }
+            })
+            ->take(20)->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $batches,
+        ]);
+    }
+
+    public function getAllbatches(Request $request)
+    {
+
+        $perPage = $request->input('per_page', 10);
+        $batchStatus = $request->input('batch_status', '');
+        $search = $request->input('search', '');
+
+        $query = TrainingBatch::with('trainingBatchSchedule');
+
+        if ($search) {
+            $query->where('batchCode', 'like', "%$search%")
+                ->orWhereHas('trainingBatchSchedule', function ($q) use ($batchStatus) {
+
+                    if ($batchStatus) {
+                        $q->whereNotNull('id');
+                    } else {
+                        $q->whereNotNull('id');
+                    }
+                });
+        }
+
+
+        $items = $query->paginate($perPage);
+ return response()->json([
+                'success' => true,
+                'data' => $items,
+            ]);
+        return response()->json(['items' => $items]);
+    }
+
+    public function getAllProviders(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $status = $request->input('status', '');
+        $search = $request->input('search', '');
+
+        $query = Provider::query();
+
+        if ($search) {
+            $query->where('name', 'like', "%$search%");
+        }
+
+
+        $items = $query->paginate($perPage);
+
+        return response()->json(['items' => $items]);
+    }
+
+
+    public function getAlldistricts(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $search = $request->input('search', '');
+        $query = District::query();
+
+        if ($search) {
+            $query->where('Name', 'like', "%$search%")
+                ->orWhere('NameEng', 'like', "%$search%")
+                ->orWhere('Code', 'like', "%$search%");
+        }
+        $items = $query->paginate($perPage);
+        return response()->json(['items' => $items]);
+    }
+    public function getAllupazilas(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $search = $request->input('search', '');
+        $query = Upazila::query();
+
+        if ($search) {
+            $query->where('Name', 'like', "%$search%")
+                ->orWhere('NameEng', 'like', "%$search%")
+                ->orWhere('Code', 'like', "%$search%");
+        }
+        $items = $query->paginate($perPage);
+        return response()->json(['items' => $items]);
+
+    }
+    public function getAllpartners(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $search = $request->input('search', '');
+        $query = Provider::query();
+
+        if ($search) {
+            $query->where('Name', 'like', "%$search%")
+                ->orWhere('NameEng', 'like', "%$search%")
+                ->orWhere('Code', 'like', "%$search%");
+        }
+        $items = $query->paginate($perPage);
+        return response()->json(['items' => $items]);
+    }
+    public function getAlltrainers(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 50);
+            $search = $request->input('search', '');
+            $dateFilter = $request->input('date_filter', '');
+
+            $items = TrainerProfile::with('profile')
+                ->whereHas('profile', function ($query) use ($search) {
+                    if ($search) {
+                        $query->where('KnownAs', 'like', "%$search%")
+                            ->orWhere('NID', 'like', "%$search%")
+                            ->orWhere('Phone', 'like', "%$search%");
+                    }
+                })
+                ->orWhere(function ($query) use ($search) {
+                    if ($search) {
+                        $query->where('professionalBio', 'like', "%$search%");
+                    }
+                })
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'items' => $items
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing the request: ' . $e->getMessage()
+            ], 500);
+        }
+
+    }
+    public function getAlltrainees(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 10);
+            $status = $request->input('status', '');
+            $search = $request->input('search', '');
+
+            $query = TrainerProfile::query();
+
+            if ($search) {
+                $query->where('name', 'like', "%$search%");
+            }
+
+            $items = $query->paginate($perPage);
+
+            return response()->json(['items' => $items]);
+        } catch (\Exception $e) {
+            // Log the exception or handle it as needed
+            return response()->json(['error' => 'An error occurred.']);
+        }
+
+    }
+
+    public function dashboardTotalsuoeradmin(Request $request)
+    {
+        $user = auth()->user();
+        $userType = $this->authUser($user->email);
+        $data = [];
+        try {
+            if (strtolower($userType->role->name) == "superadmin") {
+                $data['running_batch'] = TrainingBatchSchedule::whereHas('isStatus1')
+                    ->whereHas('isStatus2')
+                    ->count();
+
+                $data['total_trainee'] = TrainingApplicant::where('isTrainee', 1)
+                    ->count();
+
+                $data['total_attend_today'] = ClassAttendance::where('is_present', 1)
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', Carbon::now()->format('Y-m-d'));
+                    })
+                    ->count();
+                $data['total_absent_today'] = ClassAttendance::where('is_present', '0')
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', Carbon::now()->format('Y-m-d'));
+                    })
+                    ->count();
+
+                $data['total_attend_week'] = ClassAttendance::where('is_present', 1)
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', '>=', Carbon::now()->subWeek()->format('Y-m-d'));
+                    })
+                    ->count();
+
+                $data['total_absent_week'] = ClassAttendance::where('is_present', '0')
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', '>=', Carbon::now()->subWeek()->format('Y-m-d'));
+                    })
+                    ->count();
+
+                $data['total_attend_month'] = ClassAttendance::where('is_present', 1)
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', '>=', Carbon::now()->subMonth()->format('Y-m-d'));
+                    })
+                    ->count();
+
+                $data['total_absent_month'] = ClassAttendance::where('is_present', '0')
+                    ->whereHas('scheduleDetail', function ($query) {
+                        $query->where('date', '>=', Carbon::now()->subMonth()->format('Y-m-d'));
+                    })
+                    ->count();
+
+                $datap['total_dropout'] = TrainingApplicant::where('isDroppedOut', 1)
+                    ->count();
+
+                $data['total_vendor'] = Provider::count();
+                $data['total_allownce_paid'] = 0;
+                $data['total_allownce_remaining'] = 0;
+                $data['total_freelancer'] = 0;
+
+            } elseif (strtolower($userType->role->name) == "Admin") {
+                // division 
+
+
+
+
+            } elseif (strtolower($userType->role->name) == "DPD") {
+
+
+
+            } elseif (strtolower($userType->role->name) == "DC") {
+                ///
+
+            } elseif (strtolower($userType->role->name) == "UNO") {
+
+            } elseif (strtolower($userType->role->name) == "PIUOfficer") {
+
+            } elseif (strtolower($userType->role->name) == "Member") {
+
+            } elseif (strtolower($userType->role->name) == "Trainee") {
+
+            } elseif (strtolower($userType->role->name) == "Trainer") {
+
+
+            } elseif (strtolower($userType->role->name) == "Inspector") {
+
+
+            } elseif (strtolower($userType->role->name) == "Provider") {
+
+
+            } elseif (strtolower($userType->role->name) == "Coordinator") {
+
+
+            } else {
+                # code...
+            }
+
+
+            return response()->json(['items' => $data]);
+        } catch (\Exception $e) {
+            // Handle the exception, log it, or return an error response
+            return response()->json(['error' => 'An error occurred while processing the request.']);
+        }
+
+    }
+}
